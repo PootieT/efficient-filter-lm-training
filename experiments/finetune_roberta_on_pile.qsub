@@ -1,0 +1,73 @@
+#!/bin/bash -l
+
+# Set SCC project
+#$ -P llamagrp
+
+# Specify hard time limit for the job.
+#   The job will be aborted if it runs longer than this time.
+#   The default time is 12 hours
+#$ -l h_rt=24:00:00
+
+# Send an email when the job finishes or if it is aborted (by default no email is sent).
+######$ -m ea
+
+# Give job a name
+#$ -N 'diff8rbtlr=3e-5'
+
+# Combine output and error files into a single file
+#$ -j y
+
+# request 6 cores, each with 6 GB RAM at least
+#$ -pe omp 10
+#$ -l mem_per_core=6G
+
+# request 1 GPU
+#$ -l gpus=1
+#$ -l gpu_c=6.0
+#$ -l gpu_type=V100
+#######$ -l gpu_type=TitanV
+
+# Submit an array job with 5 tasks
+#$ -t 1-1
+
+# Keep track of information related to the current job
+echo "=========================================================="
+echo "Start date : $(date)"
+echo "Job name : $JOB_NAME"
+echo "Job ID : $JOB_ID  $SGE_TASK_ID"
+echo "=========================================================="
+nvidia-smi
+
+module load anaconda3/5.2.0
+source activate /projectnb2/llamagrp/peter/ContrastiveAugmentation/envs
+
+# huggingface related cache directory
+export TRANSFORMERS_CACHE=/projectnb2/llamagrp/peter/huggingface_cache/
+export HF_DATASETS_CACHE="/projectnb2/llamagrp/peter/huggingface_cache/"
+# Weights and biases related environment variables, offline to disable sync
+export WANDB_CONFIG_DIR="/project/llamagrp/peter"
+
+ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
+RUN_NAME="baseline"
+
+python run_mlm.py \
+    --model_name_or_path roberta-base \
+    --dataset_name the_pile \
+    --streaming true \
+    --max_seq_length 512 \
+    --max_eval_samples 1000 \
+    --run_name $RUN_NAME \
+    --output_dir "${ROOT}/dump/${RUN_NAME}"
+    --per_device_train_batch_size 8 \
+    --gradient_accumulation_steps 4 \
+    --per_device_eval_batch_size 8 \
+    --learning_rate 5e-5 \
+    --do_train \
+    --do_eval \
+    --evaluation_strategy steps \
+    --eval_steps 500 \
+    --logging_steps 500 \
+    --max_steps 100000000 \
+    --seed 42 \
+    --overwrite_output_dir true \
+    --fp16 true
