@@ -144,7 +144,6 @@ def one_pass_filter(
         feat = torch.tensor(featurizer(line.strip()), device=device)
         norm_feat = feat / torch.sqrt(torch.sum(feat ** 2))
         distances = 1 - torch.sum(norm_feat * norm_cache_features, dim=1)
-        pdb.set_trace()
         min_val, max_val = distances.min(), distances.max()
 
         # if distance is so small, we have a high possibility of duplication, discard
