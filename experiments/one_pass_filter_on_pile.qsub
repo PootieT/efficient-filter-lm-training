@@ -59,4 +59,4 @@ python filtering/one_pass_heuristic_dedup.py \
     --p-low 1.0 \
     --p-high 1.0 \
     --stop-idx 4800000 \
-    --log-step 1000
+    --log-step 4800
