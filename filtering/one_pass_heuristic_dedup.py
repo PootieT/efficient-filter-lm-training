@@ -6,6 +6,7 @@ import pdb
 import sys
 
 import pandas as pd
+import torch
 from tqdm import tqdm
 from functools import partial
 from pathlib import Path
@@ -107,6 +108,7 @@ def one_pass_filter(
 ):
     out_path = Path(out_path)
     os.makedirs(out_path, exist_ok=True)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     out_f = open(out_path.joinpath("filtered_data.txt"), "w")
     idx = 0
@@ -126,9 +128,9 @@ def one_pass_filter(
         bar.update()
 
     cache_features = np.vstack(cache_features)
-    norm_cache_features = (
+    norm_cache_features = torch.tensor((
         cache_features / np.tile(np.linalg.norm(cache_features, ord=2, axis=1), (cache_features.shape[1], 1)).T
-    )
+    )).to(device)
     discard_cnt, replace_cnt = 0, 0
     stats = []
     bar = tqdm(total=stop_idx, desc=f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")#, position=0)
@@ -139,9 +141,10 @@ def one_pass_filter(
         if isinstance(line, dict):
             line = line["text"]
 
-        feat = featurizer(line.strip())
-        norm_feat = feat / np.sqrt(np.sum(feat ** 2))
-        distances = 1 - np.sum(norm_feat * norm_cache_features, axis=1)
+        feat = torch.tensor(featurizer(line.strip()), device=device)
+        norm_feat = feat / torch.sqrt(torch.sum(feat ** 2))
+        distances = 1 - torch.sum(norm_feat * norm_cache_features, dim=1)
+        pdb.set_trace()
         min_val, max_val = distances.min(), distances.max()
 
         # if distance is so small, we have a high possibility of duplication, discard
@@ -151,7 +154,7 @@ def one_pass_filter(
 
         # if distance so large, we should update cache to ensure the diversity of cache
         elif max_val > t_high and np.random.rand() < p_high:
-            min_idx = np.argmin(distances)
+            min_idx = torch.argmin(distances)
             norm_cache_features[min_idx] = norm_feat
             replace_cnt += 1
 
