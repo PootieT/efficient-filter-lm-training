@@ -183,19 +183,20 @@ def main(args):
     #     exit(0)
 
     data = load_dataset("the_pile", split="train", streaming=True).shuffle(seed=args.seed)
-    one_pass_filter(
-        iter(data),
-        featurizer,
-        out_path=out_path,
-        stop_idx=args.stop_idx,  # 4800000 is all data
-        cache_size=args.cache_size,
-        t_low=args.t_low,
-        p_low=args.p_low,
-        t_high=args.t_high,
-        p_high=args.p_high,
-        debug=args.debug,
-        log_step=args.log_step,
-    )
+    with torch.no_grad():
+        one_pass_filter(
+            iter(data),
+            featurizer,
+            out_path=out_path,
+            stop_idx=args.stop_idx,  # 4800000 is all data
+            cache_size=args.cache_size,
+            t_low=args.t_low,
+            p_low=args.p_low,
+            t_high=args.t_high,
+            p_high=args.p_high,
+            debug=args.debug,
+            log_step=args.log_step,
+        )
 
 
 if __name__ == "__main__":
