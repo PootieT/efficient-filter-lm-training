@@ -70,5 +70,5 @@ python filtering/one_pass_heuristic_dedup.py \
     --t-hig $T_HIGH \
     --p-low 1.0 \
     --p-high 1.0 \
-    --stop-index 4800000 \
+    --stop-idx 4800000 \
     --log-step 500
