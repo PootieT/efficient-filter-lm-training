@@ -4,3 +4,5 @@ seaborn
 pandas
 numpy
 matplotlib
+tqdm
+nltk

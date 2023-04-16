@@ -5,7 +5,6 @@ import argparse
 import sys
 
 import pandas as pd
-from sklearn.decomposition import PCA
 from tqdm import tqdm
 from functools import partial
 from pathlib import Path
@@ -45,7 +44,7 @@ def parse_args():
         "--p-high", help="probability of adding data to cache after exceeding threshold", default=1.0, type=float
     )
     parser.add_argument(
-        "--stop-index", help="maximum amount of data to filter", default=4800000, type=int
+        "--stop-idx", help="maximum amount of data to filter", default=4800000, type=int
     )
     parser.add_argument(
         "--log-step", help="number of steps between each log", default=1000, type=int
