@@ -80,6 +80,10 @@ def eig(A):
 
 def log_stats(stats, features, **kwargs):
     stat = kwargs
+    n, emb = features.shape
+    p = torch.ones(n, device=features.device)/n
+    idx = p.multinomial(num_samples=int(n/10), replacement=False)
+    features = features[idx]
     # cos = cosine_similarity(features, features)
     cos = torch.nn.CosineSimilarity(dim=-1)(features.unsqueeze(1), features.unsqueeze(0))
     stat["max_self_sim"] = cos.max()
