@@ -173,7 +173,7 @@ def main(args):
     print(f"========= cache_size={args.cache_size}, t_low={args.t_low}, t_high={args.t_high} ========")
     out_path = f"../data/CMS{args.bucket_size}_CS{args.cache_size}_TL{args.t_low}_TH{args.t_high}"
     if os.path.exists(out_path):
-        print("path exist. Skipping")
+        print(f"path exist. Skipping {out_path}")
         exit(0)
 
     data = load_dataset("the_pile", split="train", streaming=True).shuffle(seed=args.seed)
