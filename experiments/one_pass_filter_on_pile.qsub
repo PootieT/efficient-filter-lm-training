@@ -16,6 +16,7 @@
 
 # Combine output and error files into a single file
 #$ -j y
+#$ -o log
 
 # request 6 cores, each with 6 GB RAM at least
 #$ -pe omp 4
