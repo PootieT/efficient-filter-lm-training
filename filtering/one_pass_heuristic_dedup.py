@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import argparse
+import pdb
 import sys
 
 import pandas as pd
@@ -133,6 +134,7 @@ def one_pass_filter(
     bar = tqdm(total=stop_idx, desc=f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")#, position=0)
     print("Start filtering ...")
     while idx < stop_idx:
+        pdb.set_trace()
         line = next(stream)
         if line is None:
             break
