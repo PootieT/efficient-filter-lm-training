@@ -81,8 +81,9 @@ def eig(A):
 def log_stats(stats, features, **kwargs):
     stat = kwargs
     n, emb = features.shape
+    # subsample 10% of feature for calculating statistics
     p = torch.ones(n, device=features.device)/n
-    idx = p.multinomial(num_samples=int(n/10), replacement=False)
+    idx = p.multinomial(num_samples=100, replacement=False)
     features = features[idx]
     # cos = cosine_similarity(features, features)
     cos = torch.nn.CosineSimilarity(dim=-1)(features.unsqueeze(1), features.unsqueeze(0))

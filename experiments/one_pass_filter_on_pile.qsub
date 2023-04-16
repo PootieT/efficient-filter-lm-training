@@ -42,7 +42,7 @@ index=0
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 RUN_NAME="baseline"
-CACHE_SIZES=(1000)
+CACHE_SIZES=(10000)
 CACHE_SIZE=${CACHE_SIZES[$index]}
 T_LOWS=(0.2)
 T_LOW=${T_LOWS[$index]}
