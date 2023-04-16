@@ -1,2 +1,6 @@
 transformers
 zstandard
+seaborn
+pandas
+numpy
+matplotlib
