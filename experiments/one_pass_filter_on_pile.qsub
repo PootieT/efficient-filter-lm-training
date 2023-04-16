@@ -42,7 +42,7 @@ index=0
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 RUN_NAME="baseline"
-CACHE_SIZES=(10000)
+CACHE_SIZES=(100000)
 CACHE_SIZE=${CACHE_SIZES[$index]}
 T_LOWS=(0.2)
 T_LOW=${T_LOWS[$index]}
@@ -59,4 +59,4 @@ python filtering/one_pass_heuristic_dedup.py \
     --p-low 1.0 \
     --p-high 1.0 \
     --stop-idx 4800000 \
-    --log-step 500
+    --log-step 1000
