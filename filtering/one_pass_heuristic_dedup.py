@@ -83,10 +83,11 @@ def log_stats(stats, features, **kwargs):
     stat["max_self_sim"] = cos.max()
     stat["min_self_sim"] = cos.min()
     stat["avg_self_sim"] = cos.mean()
-    eigen_values = eig(features)
-    eigen_frac = eigen_values / eigen_values.sum()
-    stat["eig1_frac"] = eigen_frac[0]
-    stat["eig5_frac"] = eigen_frac[:5].sum()
+    # these take forever for big matrices
+    # eigen_values = eig(features)
+    # eigen_frac = eigen_values / eigen_values.sum()
+    # stat["eig1_frac"] = eigen_frac[0]
+    # stat["eig5_frac"] = eigen_frac[:5].sum()
     stats.append(stat)
     return stats
 
