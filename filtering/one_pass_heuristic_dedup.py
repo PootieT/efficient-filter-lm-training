@@ -125,7 +125,6 @@ def one_pass_filter(
         idx += 1
         bar.update()
 
-    print("Normalizing initial cache vectors ...")
     cache_features = np.vstack(cache_features)
     norm_cache_features = (
         cache_features / np.tile(np.linalg.norm(cache_features, ord=2, axis=1), (cache_features.shape[1], 1)).T
@@ -133,9 +132,7 @@ def one_pass_filter(
     discard_cnt, replace_cnt = 0, 0
     stats = []
     bar = tqdm(total=stop_idx, desc=f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")#, position=0)
-    print("Start filtering ...")
     while idx < stop_idx:
-        pdb.set_trace()
         line = next(stream)
         if line is None:
             break
