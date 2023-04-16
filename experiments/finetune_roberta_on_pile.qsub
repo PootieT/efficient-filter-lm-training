@@ -12,13 +12,10 @@
 ######$ -m ea
 
 # Give job a name
-#$ -N 'diff8rbtlr=3e-5'
-
-# Combine output and error files into a single file
-#$ -j y
+#$ -N 'base464'
 
 # request 6 cores, each with 6 GB RAM at least
-#$ -pe omp 10
+#$ -pe omp 2
 #$ -l mem_per_core=6G
 
 # request 1 GPU
@@ -30,6 +27,10 @@
 # Submit an array job with 5 tasks
 #$ -t 1-1
 
+# Combine output and error files into a single file
+#$ -j y
+#$ -o log
+
 # Keep track of information related to the current job
 echo "=========================================================="
 echo "Start date : $(date)"
@@ -39,7 +40,7 @@ echo "=========================================================="
 nvidia-smi
 
 module load anaconda3/5.2.0
-source activate /projectnb2/llamagrp/peter/ContrastiveAugmentation/envs
+source activate /projectnb2/llamagrp/peter/CS543-final-project/envs
 
 # huggingface related cache directory
 export TRANSFORMERS_CACHE=/projectnb2/llamagrp/peter/huggingface_cache/
@@ -50,24 +51,25 @@ export WANDB_CONFIG_DIR="/project/llamagrp/peter"
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 RUN_NAME="baseline"
 
-python run_mlm.py \
+python evaluation/run_mlm.py \
     --model_name_or_path roberta-base \
     --dataset_name the_pile \
     --streaming true \
     --max_seq_length 512 \
     --max_eval_samples 1000 \
     --run_name $RUN_NAME \
-    --output_dir "${ROOT}/dump/${RUN_NAME}"
-    --per_device_train_batch_size 8 \
+    --output_dir "${ROOT}/dump/${RUN_NAME}" \
+    --logging_dir "${ROOT}/wandb" \
+    --per_device_train_batch_size 16 \
     --gradient_accumulation_steps 4 \
     --per_device_eval_batch_size 8 \
     --learning_rate 5e-5 \
     --do_train \
     --do_eval \
     --evaluation_strategy steps \
-    --eval_steps 500 \
+    --eval_steps 200 \
     --logging_steps 500 \
-    --max_steps 100000000 \
+    --max_steps 75000 \
     --seed 42 \
     --overwrite_output_dir true \
     --fp16 true
