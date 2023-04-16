@@ -162,7 +162,8 @@ def one_pass_filter(
             stats = log_stats(stats, norm_cache_features, discard_cnt=discard_cnt, replace_cnt=replace_cnt, idx=idx)
         idx += 1
         bar.update()
-        bar.set_description(f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")
+        bar.set_description(f"Processing Stream (discard={discard_cnt}, replace={replace_cnt}, min-d={min_val}, "
+                            f"max-d={max_val}, max_val)")
 
     pd.DataFrame(stats).to_csv(out_path.joinpath("stats.csv"))
     out_f.close()
