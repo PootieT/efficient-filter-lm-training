@@ -80,7 +80,8 @@ def eig(A):
 
 def log_stats(stats, features, **kwargs):
     stat = kwargs
-    cos = cosine_similarity(features, features)
+    # cos = cosine_similarity(features, features)
+    cos = torch.nn.CosineSimilarity(dim=-1)(features.unsqueeze(1), features.unsqueeze(0))
     stat["max_self_sim"] = cos.max()
     stat["min_self_sim"] = cos.min()
     stat["avg_self_sim"] = cos.mean()
