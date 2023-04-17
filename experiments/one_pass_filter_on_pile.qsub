@@ -6,7 +6,7 @@
 # Specify hard time limit for the job.
 #   The job will be aborted if it runs longer than this time.
 #   The default time is 12 hours
-#$ -l h_rt=24:00:00
+#$ -l h_rt=80:00:00
 
 # Send an email when the job finishes or if it is aborted (by default no email is sent).
 ######$ -m ea
@@ -38,16 +38,31 @@ source activate /projectnb/llamagrp/peter/CS543-final-project/envs
 export PYTHONPATH="${PYTHONPATH}:/projectnb/llamagrp/peter/CS543-final-project"
 
 #index=$(($SGE_TASK_ID-1))
-index=0
+index=35
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 RUN_NAME="baseline"
-CACHE_SIZES=(10000)
+CACHE_SIZES=(\
+100 100 100 100 100 100 100 100 100 \
+300 300 300 300 300 300 300 300 300 \
+1000 1000 1000 1000 1000 1000 1000 1000 1000 \
+3000 3000 3000 3000 3000 3000 3000 3000 3000 \
+)
 CACHE_SIZE=${CACHE_SIZES[$index]}
-T_LOWS=(0.2)
+T_LOWS=(\
+0.3 0.3 0.3 0.2 0.2 0.2 0.1 0.1 0.1 \
+0.3 0.3 0.3 0.2 0.2 0.2 0.1 0.1 0.1 \
+0.3 0.3 0.3 0.2 0.2 0.2 0.1 0.1 0.1 \
+0.3 0.3 0.3 0.2 0.2 0.2 0.1 0.1 0.1 \
+\)
 T_LOW=${T_LOWS[$index]}
-T_HIGHS=(0.999)
-T_HIGH=${T_HIGHS[$index]}
+P_HIGHS=(\
+1.0 0.1 0.01 1.0 0.1 0.01 1.0 0.1 0.01 \
+1.0 0.1 0.01 1.0 0.1 0.01 1.0 0.1 0.01 \
+1.0 0.1 0.01 1.0 0.1 0.01 1.0 0.1 0.01 \
+1.0 0.1 0.01 1.0 0.1 0.01 1.0 0.1 0.01 \
+)
+P_HIGH=${P_HIGHS[$index]}
 
 
 python filtering/one_pass_heuristic_dedup.py \
@@ -55,8 +70,8 @@ python filtering/one_pass_heuristic_dedup.py \
     --bucket-size 100 \
     --cache-size $CACHE_SIZE \
     --t-low $T_LOW \
-    --t-hig $T_HIGH \
+    --t-hig 0.999 \
     --p-low 1.0 \
-    --p-high 1.0 \
+    --p-high $P_HIGH \
     --stop-idx 4800000 \
     --log-step 4800
