@@ -156,16 +156,15 @@ def one_pass_filter(
         # if distance is so small, we have a high possibility of duplication, discard
         if min_val < t_low and np.random.rand() < p_low:
             discard_cnt += 1
-            continue
+        else:
+            # if distance so large, we should update cache to ensure the diversity of cache
+            if max_val > t_high and np.random.rand() < p_high:
+                min_idx = torch.argmin(distances)
+                norm_cache_features[min_idx] = norm_feat
+                replace_cnt += 1
 
-        # if distance so large, we should update cache to ensure the diversity of cache
-        elif max_val > t_high and np.random.rand() < p_high:
-            min_idx = torch.argmin(distances)
-            norm_cache_features[min_idx] = norm_feat
-            replace_cnt += 1
-
-        if not debug:
-            out_f.write(json.dumps({"text": line}) + "\n")
+            if not debug:
+                out_f.write(json.dumps({"text": line}) + "\n")
 
         if idx % log_step == 0:
             stats = log_stats(stats, norm_cache_features, discard_cnt=discard_cnt, replace_cnt=replace_cnt, idx=idx)
@@ -182,8 +181,8 @@ def main(args):
     cms = CMS(args.bucket_size, 1, seed=args.seed)
     featurizer = partial(ngram_hash_featurizer, cms)
 
-    print(f"========= cache_size={args.cache_size}, t_low={args.t_low}, t_high={args.t_high} ========")
-    out_path = f"../data/CMS{args.bucket_size}_CS{args.cache_size}_TL{args.t_low}_TH{args.t_high}"
+    print(f"========= cache_size={args.cache_size}, t_low={args.t_low}, P_high={args.p_high} ========")
+    out_path = f"../data/CMS{args.bucket_size}_CS{args.cache_size}_TL{args.t_low}_TH{args.t_high}_PH{args.p_high}"
     # if os.path.exists(out_path):
     #     print(f"path exist. Skipping {out_path}")
     #     exit(0)
