@@ -134,8 +134,9 @@ def one_pass_filter(
         bar.update()
 
     cache_features = np.vstack(cache_features)
+    pdb.set_trace()
     norm_cache_features = torch.tensor((
-        cache_features / np.tile(np.linalg.norm(cache_features, ord=2, axis=1), (cache_features.shape[1], 1)).T
+        cache_features / (np.tile(np.linalg.norm(cache_features, ord=2, axis=1), (cache_features.shape[1], 1)).T + 1e-10)
     )).to(device)
     discard_cnt, replace_cnt = 0, 0
     stats = []
