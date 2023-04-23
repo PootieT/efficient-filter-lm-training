@@ -37,7 +37,7 @@ def load_dir(data_dir) -> pd.DataFrame:
     if data_dir.joinpath("stats.csv").exists():
         df = pd.read_csv(f"{data_dir}/stats.csv")
         for col in ["min_self_sim", "max_self_sim", "avg_self_sim"]:
-            if df[col] != float:
+            if df[col].dtype != float:
                 if "tensor(" in str(df[col][0]):
                     df[col] = df[col].apply(lambda x: tensor_str_to_float(s))
                 else:
