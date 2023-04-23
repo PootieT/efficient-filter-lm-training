@@ -102,7 +102,7 @@ def log_stats(stats, features, **kwargs):
 def one_pass_filter(
     stream,
     featurizer: Callable,
-    out_path: str,
+    out_path: Union[str, Path],
     cache_size: int,
     t_low: float,
     p_low: float,
@@ -181,7 +181,7 @@ def main(args):
     featurizer = partial(ngram_hash_featurizer, cms)
 
     print(f"========= cache_size={args.cache_size}, t_low={args.t_low}, P_high={args.p_high} ========")
-    out_path = f"../data/CMS{args.bucket_size}_CS{args.cache_size}_TL{args.t_low}_TH{args.t_high}_PH{args.p_high}"
+    out_path = Path(__file__).parents[1].joinpath(f"data/CMS{args.bucket_size}_CS{args.cache_size}_TL{args.t_low}_TH{args.t_high}_PH{args.p_high}")
     # if os.path.exists(out_path):
     #     print(f"path exist. Skipping {out_path}")
     #     exit(0)
