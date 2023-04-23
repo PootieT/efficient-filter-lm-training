@@ -32,6 +32,10 @@ def get_param_from_path(data_dir):
 def load_dir(data_dir) -> pd.DataFrame:
     if data_dir.joinpath("stats.csv").exists():
         df = pd.read_csv(f"{data_dir}/stats.csv")
+        for col in ["min_self_sim", "max_self_sim", "avg_self_sim"]:
+            if df[col].dtype != float:
+                print("df[col] type=", df[col].dtype)
+                df[col] = pd.to_numeric(df[col], downcast="float")
         feat = get_param_from_path(data_dir)
         for k, v in feat.items():
             df[k] = v
