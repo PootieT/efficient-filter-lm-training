@@ -67,5 +67,5 @@ def plot_dirs(dirs: List[Path], max_idx: int):
 
 
 if __name__ == "__main__":
-    max_idx = 100000
+    max_idx = None
     plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")), max_idx)
