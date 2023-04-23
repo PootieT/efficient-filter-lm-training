@@ -37,8 +37,8 @@ module load anaconda3/5.2.0
 source activate /projectnb/llamagrp/peter/CS543-final-project/envs
 export PYTHONPATH="${PYTHONPATH}:/projectnb/llamagrp/peter/CS543-final-project"
 
-index=$(($SGE_TASK_ID-1))
-#index=35
+#index=$(($SGE_TASK_ID-1))
+index=35
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project/data"
 COUNTER=0
