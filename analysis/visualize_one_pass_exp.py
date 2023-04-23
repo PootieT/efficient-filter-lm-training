@@ -45,8 +45,8 @@ def load_dir(data_dir) -> pd.DataFrame:
                 else:
                     raise NotImplementedError()
 
-        df["discard_rate"] = df["discard_cnt"].diff()
-        df["replace_rate"] = df["replace_cnt"].diff()
+        df["discard_rate"] = df["discard_cnt"].diff().fillna(0)
+        df["replace_rate"] = df["replace_cnt"].diff().fillna(0)
 
         feat = get_param_from_path(data_dir)
         for k, v in feat.items():
