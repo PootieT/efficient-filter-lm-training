@@ -36,12 +36,18 @@ def tensor_str_to_float(s: str):
 def load_dir(data_dir) -> pd.DataFrame:
     if data_dir.joinpath("stats.csv").exists():
         df = pd.read_csv(f"{data_dir}/stats.csv")
+
+        # convert potentially tensor types to float
         for col in ["min_self_sim", "max_self_sim", "avg_self_sim"]:
             if df[col].dtype != float:
                 if "tensor(" in str(df[col][0]):
                     df[col] = df[col].apply(lambda x: tensor_str_to_float(x))
                 else:
                     raise NotImplementedError()
+
+        df["discard_rate"] = df["discard_cnt"].diff()
+        df["replace_rate"] = df["replace_cnt"].diff()
+
         feat = get_param_from_path(data_dir)
         for k, v in feat.items():
             df[k] = v
@@ -67,18 +73,16 @@ def make_plot(df, out_dir:Path, x, y, hue, max_idx: Optional[int]):
     plt.close()
 
 
-def plot_dirs(dirs: List[Path], max_idx: int):
+def plot_dirs(dirs: List[Path]):
 
     df = pd.concat([load_dir(d) for d in dirs])
     out_dir = dirs[0].parents[1].joinpath("dump/figures")
     os.makedirs(out_dir, exist_ok=True)
-    make_plot(df, out_dir, "idx", "avg_self_sim", "cache size", max_idx)
-    make_plot(df, out_dir, "idx", "avg_self_sim", "duplication threshold", max_idx)
-    make_plot(df, out_dir, "idx", "avg_self_sim", "update cache probability", max_idx)
+    for max_idx in [100000]:
+        for y in ["discard_cnt", "replace_cnt", "discard_rate", "replace_rate"]:  # "avg_self_sim"
+            for hue in ["cache size", "duplication threshold", "update cache probability"]:
+                make_plot(df, out_dir, "idx", y, hue, max_idx)
 
 
 if __name__ == "__main__":
-    max_idx = 100000
-    plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")), max_idx)
-    max_idx = None
-    plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")), max_idx)
+    plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")))
