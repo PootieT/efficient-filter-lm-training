@@ -111,22 +111,30 @@ def main():
     sentences = [sent for sent in sentences if len(sent.split()) > 2]
     #sample 100k sentences from sentences
     sentences = np.random.choice(sentences, 100000, replace=False)
-    
+
+    logger.info("Calculating glue features ...")
+    print("Calculating glue features ...")
     counted_ngrams = count_ngrams(sentences, 2)
     cms = CMS(10000, 1, seed=args.seed, independence_k=2)
     cms.update(counted_ngrams)
     text_vector = cms.counter
-    
+
+    logger.info("Calculating Pile sample features ...")
+    print("Calculating Pile sample features ...")
     cms.reset()
     counted_ngrams = count_ngrams(the_pile_sample, 2)
     cms.update(counted_ngrams)
     data_vector = cms.counter
 
+    logger.info("Calculating filtered dataset features ...")
+    print("Calculating filtered dataset features ...")
     cms.reset()
     counted_ngrams = count_ngrams(sampled_data, 2)
     cms.update(counted_ngrams)
     sampled_vector = cms.counter
 
+    logger.info("Calculating KL reduction ...")
+    print("Calculating KL reduction ...")
     #calculate KL divergence between text_vector an data_vector
     target_to_random = entropy(text_vector, data_vector, axis=1)
     target_to_sampled = entropy(text_vector, sampled_vector, axis=1)
@@ -145,7 +153,7 @@ if __name__ == "__main__":
 
 """
 ## example training script
-python run_mlm.py \
+python run_quick_eval.py \
     --sampled_data_path /Users/muhammed/Desktop/Projects/CS543/CS543-final-project/data/the_pile_sample_2/
     --seed 42 \
 """
