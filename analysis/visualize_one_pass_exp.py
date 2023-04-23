@@ -28,10 +28,14 @@ def get_param_from_path(data_dir):
 
 
 def load_dir(data_dir) -> pd.DataFrame:
-    df = pd.read_csv(f"{data_dir}/stats.csv")
-    feat = get_param_from_path(data_dir)
-    for k, v in feat.items():
-        df[k] = v
+    if data_dir.joinpath("stats.csv").exists():
+        df = pd.read_csv(f"{data_dir}/stats.csv")
+        feat = get_param_from_path(data_dir)
+        for k, v in feat.items():
+            df[k] = v
+    else:
+        print(f"stats file does not exist for {data_dir}, skipping ...")
+        df = pd.DataFrame()
     return df
 
 
