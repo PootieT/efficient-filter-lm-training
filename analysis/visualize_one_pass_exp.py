@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 feat2short = {
     "cache size": "CS",
     "duplication threshold": "TL",
-    "update cache probability": "TH",
+    "duplication discard probability": "PL",
+    "update cache threshold": "TH",
+    "update cache probability": "PH",
     "bucket size": "CMS"
 }
 
