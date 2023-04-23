@@ -1,0 +1,53 @@
+#!/bin/bash -l
+
+# Set SCC project
+#$ -P ds563
+
+# Specify hard time limit for the job.
+#   The job will be aborted if it runs longer than this time.
+#   The default time is 12 hours
+#$ -l h_rt=24:00:00
+
+# Send an email when the job finishes or if it is aborted (by default no email is sent).
+######$ -m ea
+
+# Give job a name
+#$ -N 'FT-sweep.01'
+
+# Combine output and error files into a single file
+#$ -j y
+#$ -o log
+
+# request 6 cores, each with 6 GB RAM at least
+#$ -pe omp 4
+####$ -l mem_per_core=6G
+
+# Submit an array job with 5 tasks
+#$ -t 1-12
+
+# Keep track of information related to the current job
+echo "=========================================================="
+echo "Start date : $(date)"
+echo "Job name : $JOB_NAME"
+echo "Job ID : $JOB_ID  $SGE_TASK_ID"
+echo "=========================================================="
+nvidia-smi
+
+module load anaconda3/5.2.0
+source activate /projectnb/llamagrp/peter/CS543-final-project/envs
+export PYTHONPATH="${PYTHONPATH}:/projectnb/llamagrp/peter/CS543-final-project"
+
+index=$(($SGE_TASK_ID-1))
+#index=35
+
+ROOT="/projectnb2/llamagrp/peter/CS543-final-project/data"
+COUNTER=0
+for f in $ROOT/* do
+  if [$COUNTER == $index]; then
+#    python evaluation/run_quick_eval.py \
+#        --seed 42 \
+#        --sampled_data_path $f
+    echo $COUNTER, $f
+  fi
+  let COUNTER++
+done
