@@ -39,7 +39,7 @@ def load_dir(data_dir) -> pd.DataFrame:
         for col in ["min_self_sim", "max_self_sim", "avg_self_sim"]:
             if df[col].dtype != float:
                 if "tensor(" in str(df[col][0]):
-                    df[col] = df[col].apply(lambda x: tensor_str_to_float(s))
+                    df[col] = df[col].apply(lambda x: tensor_str_to_float(x))
                 else:
                     raise NotImplementedError()
         feat = get_param_from_path(data_dir)
