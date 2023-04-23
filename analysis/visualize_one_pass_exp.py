@@ -45,10 +45,11 @@ def make_plot(df, out_dir:Path, x, y, hue, max_idx: Optional[int]):
     print(f"making plot {y}_vs_{x}_across_{hue}, max_idx={max_idx}...")
     plt.figure()
     max_idx = max(df.idx) if max_idx is None else max_idx
-    sns.lineplot(data=df[df.idx <= max_idx], x=x, y=y, hue=hue)
+    g = sns.lineplot(data=df[df.idx <= max_idx], x=x, y=y, hue=hue)
     plt.title(f"{y} across different {hue} over filtering")
     plt.xlabel(x if x != "idx" else "Number of filtered datapoints")
     plt.ylabel(y)
+    g.set(ylim=(0, None))
     out_path = out_dir.joinpath(f"{y}_vs_{x}_across_{hue}.png")
     if max_idx is not None:
         out_path = str(out_path).replace(".png", f"_{max_idx}.png")
@@ -62,10 +63,11 @@ def plot_dirs(dirs: List[Path], max_idx: int):
     out_dir = dirs[0].parents[1].joinpath("dump/figures")
     os.makedirs(out_dir, exist_ok=True)
     make_plot(df, out_dir, "idx", "avg_self_sim", "cache size", max_idx)
-    make_plot(df, out_dir, "idx", "avg_self_sim", "duplication threshold", max_idx)
-    make_plot(df, out_dir, "idx", "avg_self_sim", "update cache probability", max_idx)
+    # make_plot(df, out_dir, "idx", "avg_self_sim", "duplication threshold", max_idx)
+    # make_plot(df, out_dir, "idx", "avg_self_sim", "update cache probability", max_idx)
 
 
 if __name__ == "__main__":
-    max_idx = None
+    max_idx = 100000
     plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")), max_idx)
+    # plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*")), max_idx)
