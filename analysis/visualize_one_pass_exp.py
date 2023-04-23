@@ -29,13 +29,19 @@ def get_param_from_path(data_dir):
     return out
 
 
+def tensor_str_to_float(s: str):
+    return float(s.split(",")[0].replace("tensor(", ""))
+
+
 def load_dir(data_dir) -> pd.DataFrame:
     if data_dir.joinpath("stats.csv").exists():
         df = pd.read_csv(f"{data_dir}/stats.csv")
         for col in ["min_self_sim", "max_self_sim", "avg_self_sim"]:
-            if df[col].dtype != float:
-                print("df[col] type=", df[col].dtype)
-                df[col] = pd.to_numeric(df[col], downcast="float")
+            if df[col] != float:
+                if "tensor(" in str(df[col][0]):
+                    df[col] = df[col].apply(lambda x: tensor_str_to_float(s))
+                else:
+                    raise NotImplementedError()
         feat = get_param_from_path(data_dir)
         for k, v in feat.items():
             df[k] = v
