@@ -38,16 +38,17 @@ source activate /projectnb/llamagrp/peter/CS543-final-project/envs
 export PYTHONPATH="${PYTHONPATH}:/projectnb/llamagrp/peter/CS543-final-project"
 
 #index=$(($SGE_TASK_ID-1))
-index=35
+index=32
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project/data"
 COUNTER=0
 for f in $ROOT/*; do
+  echo "counter=" $COUNTER "file=" $f
   if [ $COUNTER == $index ]; then
 #    python evaluation/run_quick_eval.py \
 #        --seed 42 \
 #        --sampled_data_path $f
-    echo $COUNTER, $f
+    echo "SELECTED!"
   fi
   let COUNTER++
 done
