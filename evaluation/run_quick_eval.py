@@ -141,6 +141,9 @@ def main():
     logger.info(f'KL divergence between text_vector and data_vector: {target_to_random}')
     logger.info(f'KL divergence between text_vector and sampled_vector: {target_to_sampled}')
     logger.info(f'KL reduction is {target_to_random - target_to_sampled}')
+    print(f'KL divergence between text_vector and data_vector: {target_to_random}')
+    print(f'KL divergence between text_vector and sampled_vector: {target_to_sampled}')
+    print(f'KL reduction is {target_to_random - target_to_sampled}')
 
 
 def _mp_fn(index):
