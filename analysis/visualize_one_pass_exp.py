@@ -73,11 +73,12 @@ def plot_dirs(dirs: List[Path], max_idx: int):
     out_dir = dirs[0].parents[1].joinpath("dump/figures")
     os.makedirs(out_dir, exist_ok=True)
     make_plot(df, out_dir, "idx", "avg_self_sim", "cache size", max_idx)
-    # make_plot(df, out_dir, "idx", "avg_self_sim", "duplication threshold", max_idx)
-    # make_plot(df, out_dir, "idx", "avg_self_sim", "update cache probability", max_idx)
+    make_plot(df, out_dir, "idx", "avg_self_sim", "duplication threshold", max_idx)
+    make_plot(df, out_dir, "idx", "avg_self_sim", "update cache probability", max_idx)
 
 
 if __name__ == "__main__":
     max_idx = 100000
     plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")), max_idx)
-    # plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*")), max_idx)
+    max_idx = None
+    plot_dirs(list(Path(__file__).parents[1].joinpath("data").glob("CMS*TH0.99_*")), max_idx)
