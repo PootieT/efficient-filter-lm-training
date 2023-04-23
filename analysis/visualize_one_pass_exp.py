@@ -79,7 +79,7 @@ def plot_dirs(dirs: List[Path]):
     out_dir = dirs[0].parents[1].joinpath("dump/figures")
     os.makedirs(out_dir, exist_ok=True)
     for max_idx in [100000]:
-        for y in ["discard_cnt", "replace_cnt", "discard_rate", "replace_rate"]:  # "avg_self_sim"
+        for y in ["discard_rate", "replace_rate"]:  # "avg_self_sim" "discard_cnt", "replace_cnt",
             for hue in ["cache size", "duplication threshold", "update cache probability"]:
                 make_plot(df, out_dir, "idx", y, hue, max_idx)
 
