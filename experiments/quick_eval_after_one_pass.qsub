@@ -23,7 +23,7 @@
 ####$ -l mem_per_core=6G
 
 # Submit an array job with 5 tasks
-#$ -t 1-7
+#$ -t 33-40
 
 # Keep track of information related to the current job
 echo "=========================================================="
