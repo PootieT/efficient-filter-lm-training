@@ -97,9 +97,9 @@ def main():
     #sampled_dataset.save_to_disk('/Users/muhammed/Desktop/Projects/CS543/CS543-final-project/data/the_pile_sample_2')
     # sampled_data = datasets.load_from_disk(data_files=args.sampled_data_path)
     sampled_data = datasets.load_dataset(args.sampled_data_path)["train"]
-    # sampled_data = sampled_data.shuffle(seed=args.seed)
-    # if len(sampled_data) > 100000:
-    #     sampled_data = sampled_data.select(range(100000))
+    sampled_data = sampled_data.shuffle(seed=args.seed)
+    if len(sampled_data) > 100000:
+        sampled_data = sampled_data.select(range(100000))
 
     sentences = []
     for taskname in task_to_keys.keys():
