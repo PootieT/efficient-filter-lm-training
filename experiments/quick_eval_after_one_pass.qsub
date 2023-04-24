@@ -12,7 +12,7 @@
 ######$ -m ea
 
 # Give job a name
-#$ -N 'quick-eval'
+#$ -N 'quick-eval-all'
 
 # Combine output and error files into a single file
 #$ -j y
