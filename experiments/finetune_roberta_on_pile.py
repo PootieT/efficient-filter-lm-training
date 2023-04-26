@@ -9,18 +9,18 @@ model_args = ModelArguments(
 data_args = DataTrainingArguments(
     dataset_name="the_pile",
     # remove train_file argument for baseline training
-    train_file="../dump/CMS100_FS10000_TL0.01_TH0.99_PH0.1/filtered_text.json",
+    train_file="../data/CMS100_CS100_TL0.1_TH0.7/filtered_data.json",
     streaming=True,
     max_seq_length=512,
     max_eval_samples=1000,
 )
 train_args = TrainingArguments(
-    run_name="baseline",
+    run_name="CMS100_CS100_TL0.1_TH0.7",
     output_dir="../dump/pile_baseline",
     logging_dir="../wandb",
     num_train_epochs=1,
     gradient_accumulation_steps=4,
-    per_device_train_batch_size=8,
+    per_device_train_batch_size=4,
     per_device_eval_batch_size=8,
     learning_rate=5e-5,
     do_train=True,

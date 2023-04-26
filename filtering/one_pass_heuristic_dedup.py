@@ -116,7 +116,7 @@ def one_pass_filter(
     os.makedirs(out_path, exist_ok=True)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-    out_f = open(out_path.joinpath("filtered_data.txt"), "w")
+    out_f = open(out_path.joinpath("filtered_data.json"), "w")
     idx = 0
     cache_features = []
     # populate initial set of cache
