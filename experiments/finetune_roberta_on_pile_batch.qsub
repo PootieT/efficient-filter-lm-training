@@ -50,27 +50,28 @@ index=$(($SGE_TASK_ID-1))
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 
-TRAIN_FILES=(\
-$ROOT/data/CMS100_CS100_TL0.03_TH0.99_PH0.01/filtered_data.json \
-$ROOT/data/CMS100_CS100_TL0.03_TH0.99_PH0.01/filtered_data.json \
-$ROOT/data/CMS100_CS100_TL0.03_TH0.99_PH0.01/filtered_data.json \
-$ROOT/data/CMS100_CS100_TL0.1_TH0.99_PH0.1/filtered_data.json \
-$ROOT/data/CMS100_CS100_TL0.1_TH0.99_PH0.1/filtered_data.json \
-$ROOT/data/CMS100_CS100_TL0.1_TH0.99_PH0.1/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.01_TH0.99_PH1.0/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.01_TH0.99_PH1.0/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.01_TH0.99_PH1.0/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.1_TH0.99_PH0.01/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.1_TH0.99_PH0.01/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.1_TH0.99_PH0.01/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.1_TH0.99_PH0.1/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.1_TH0.99_PH0.1/filtered_data.json \
-$ROOT/data/CMS100_CS1000_TL0.1_TH0.99_PH0.1/filtered_data.json \
-$ROOT/data/CMS100_CS3000_TL0.01_TH0.99_PH1.0/filtered_data.json \
-$ROOT/data/CMS100_CS3000_TL0.01_TH0.99_PH1.0/filtered_data.json \
-$ROOT/data/CMS100_CS3000_TL0.01_TH0.99_PH1.0/filtered_data.json \
+RUN_NAMES=(\
+CMS100_CS100_TL0.03_TH0.99_PH0.01 \
+CMS100_CS100_TL0.03_TH0.99_PH0.01 \
+CMS100_CS100_TL0.03_TH0.99_PH0.01 \
+CMS100_CS100_TL0.1_TH0.99_PH0.1 \
+CMS100_CS100_TL0.1_TH0.99_PH0.1 \
+CMS100_CS100_TL0.1_TH0.99_PH0.1 \
+CMS100_CS1000_TL0.01_TH0.99_PH1.0 \
+CMS100_CS1000_TL0.01_TH0.99_PH1.0 \
+CMS100_CS1000_TL0.01_TH0.99_PH1.0 \
+CMS100_CS1000_TL0.1_TH0.99_PH0.01 \
+CMS100_CS1000_TL0.1_TH0.99_PH0.01 \
+CMS100_CS1000_TL0.1_TH0.99_PH0.01 \
+CMS100_CS1000_TL0.1_TH0.99_PH0.1 \
+CMS100_CS1000_TL0.1_TH0.99_PH0.1 \
+CMS100_CS1000_TL0.1_TH0.99_PH0.1 \
+CMS100_CS3000_TL0.01_TH0.99_PH1.0 \
+CMS100_CS3000_TL0.01_TH0.99_PH1.0 \
+CMS100_CS3000_TL0.01_TH0.99_PH1.0 \
 )
-TRAIN_FILE=${TRAIN_FILES[$index]}
+RUN_NAME=${RUN_NAMES[$index]}
+TRAIN_FILE=$ROOT/data/$RUN_NAME/filtered_data.json
 
 SEEDS=(\
 42 43 44 \
@@ -83,25 +84,26 @@ SEEDS=(\
 SEED=${SEEDS[$index]}
 
 echo "Train file="$TRAIN_FILE" seed="$SEED
-#python run_mlm.py \
-#    --model_name_or_path roberta-base \
-#    --dataset_name the_pile \
-#    --train_file $TRAIN_FILE \
-#    --streaming true \
-#    --max_seq_length 512 \
-#    --max_eval_samples 1000 \
-#    --run_name $RUN_NAME \
-#    --output_dir "${ROOT}/dump/${RUN_NAME}" \
-#    --per_device_train_batch_size 16 \
-#    --gradient_accumulation_steps 4 \
-#    --per_device_eval_batch_size 8 \
-#    --learning_rate 5e-5 \
-#    --do_train \
-#    --do_eval \
-#    --evaluation_strategy steps \
-#    --eval_steps 200 \
-#    --logging_steps 500 \
-#    --max_steps 75000 \
-#    --seed $SEED \
-#    --overwrite_output_dir true \
-#    --fp16 true
+python run_mlm.py \
+    --model_name_or_path roberta-base \
+    --dataset_name the_pile \
+    --train_file $TRAIN_FILE \
+    --streaming true \
+    --max_seq_length 512 \
+    --max_eval_samples 1000 \
+    --run_name "${RUN_NAME}_${SEED}" \
+    --output_dir "${ROOT}/dump/${RUN_NAME}_${SEED}" \
+    --per_device_train_batch_size 16 \
+    --gradient_accumulation_steps 4 \
+    --per_device_eval_batch_size 8 \
+    --learning_rate 5e-5 \
+    --do_train \
+    --do_eval \
+    --evaluation_strategy steps \
+    --eval_steps 200 \
+    --logging_steps 500 \
+    --max_steps 75000 \
+    --seed $SEED \
+    --overwrite_output_dir true \
+    --save_total_limit 2 \
+    --fp16 true
