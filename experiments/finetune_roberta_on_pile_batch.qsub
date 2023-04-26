@@ -48,9 +48,7 @@ export WANDB_CONFIG_DIR="/project/llamagrp/peter"
 index=$(($SGE_TASK_ID-1))
 #index=32
 
-
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
-
 
 TRAIN_FILES=(\
 $ROOT/data/CMS100_CS100_TL0.03_TH0.99_PH0.01/filtered_data.json \
@@ -84,7 +82,7 @@ SEEDS=(\
 )
 SEED=${SEEDS[$index]}
 
-echo "Train file="$TRAIN_FILE" seed="$seed
+echo "Train file="$TRAIN_FILE" seed="$SEED
 #python run_mlm.py \
 #    --model_name_or_path roberta-base \
 #    --dataset_name the_pile \
