@@ -19,7 +19,7 @@
 #$ -o log
 
 # request 6 cores, each with 6 GB RAM at least
-#$ -pe omp 10
+#$ -pe omp 4
 #$ -l mem_per_core=6G
 
 # request 0 GPU
@@ -27,7 +27,7 @@
 #$ -l gpu_c=6.0
 
 # Submit an array job with 5 tasks
-#$ -t 1-1
+#$ -t 3
 
 # Keep track of information related to the current job
 echo "=========================================================="
@@ -35,7 +35,7 @@ echo "Start date : $(date)"
 echo "Job name : $JOB_NAME"
 echo "Job ID : $JOB_ID  $SGE_TASK_ID"
 echo "=========================================================="
-nvidia-smi
+####nvidia-smi
 
 module load anaconda3/5.2.0
 source activate /projectnb/llamagrp/peter/CS543-final-project/envs
@@ -47,7 +47,7 @@ export HF_DATASETS_CACHE="/projectnb2/llamagrp/peter/huggingface_cache/"
 export WANDB_CONFIG_DIR="/project/llamagrp/peter"
 
 index=$(($SGE_TASK_ID-1))
-i#index=0
+#index=0
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 
