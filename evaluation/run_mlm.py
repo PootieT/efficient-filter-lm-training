@@ -317,17 +317,18 @@ def main(model_args, data_args, training_args):
         extension = data_args.validation_file.split(".")[-1]
     if extension == "txt":
         extension = "text"
-    raw_datasets_local = load_dataset(
-        extension,
-        data_files=data_files,
-        cache_dir=model_args.cache_dir,
-        use_auth_token=True if model_args.use_auth_token else None,
-    )
-    if data_args.dataset_name is not None:
-        for split in data_files.keys():
-            raw_datasets[split] = raw_datasets_local[split]
-    else:
-        raw_datasets = raw_datasets_local
+    if data_files:
+        raw_datasets_local = load_dataset(
+            extension,
+            data_files=data_files,
+            cache_dir=model_args.cache_dir,
+            use_auth_token=True if model_args.use_auth_token else None,
+        )
+        if data_args.dataset_name is not None:
+            for split in data_files.keys():
+                raw_datasets[split] = raw_datasets_local[split]
+        else:
+            raw_datasets = raw_datasets_local
 
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
