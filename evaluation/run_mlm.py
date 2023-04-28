@@ -308,7 +308,7 @@ def main(model_args, data_args, training_args):
 
     # instead of choosing between loading a dataset or local data file,
     # make dataset default, then load train_file or validation_file if provided
-    data_files = {}
+    data_files, extension = {}, "text"
     if data_args.train_file is not None:
         data_files["train"] = data_args.train_file
         extension = data_args.train_file.split(".")[-1]
