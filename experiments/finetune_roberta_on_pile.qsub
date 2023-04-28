@@ -16,9 +16,10 @@
 
 # Combine output and error files into a single file
 #$ -j y
+#$ -o log
 
 # request 6 cores, each with 6 GB RAM at least
-#$ -pe omp 10
+#$ -pe omp 4
 #$ -l mem_per_core=6G
 
 # request 0 GPU
@@ -26,7 +27,7 @@
 #$ -l gpu_c=6.0
 
 # Submit an array job with 5 tasks
-#$ -t 1-1
+#$ -t 2-3
 
 # Keep track of information related to the current job
 echo "=========================================================="
@@ -47,8 +48,13 @@ export WANDB_CONFIG_DIR="/project/llamagrp/peter"
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project"
 RUN_NAME="baseline"
+index=$(($SGE_TASK_ID-1))
 
-python run_mlm.py \
+SEEDS=(42 43 44)
+SEED=${SEEDS[$index]}
+RUN_NAME=baseline_$SEED
+
+python evaluation/run_mlm.py \
     --model_name_or_path roberta-base \
     --dataset_name the_pile \
     --streaming true \
@@ -66,6 +72,7 @@ python run_mlm.py \
     --eval_steps 200 \
     --logging_steps 500 \
     --max_steps 75000 \
-    --seed 42 \
+    --seed $SEED \
     --overwrite_output_dir true \
+    --save_total_limit 2 \
     --fp16 true
