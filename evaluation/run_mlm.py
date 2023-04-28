@@ -285,6 +285,9 @@ def main(model_args, data_args, training_args):
             use_auth_token=True if model_args.use_auth_token else None,
             streaming=data_args.streaming,
         ).with_format("torch")
+        # parallelizing experiments do not do well with streaming from the same file,
+        # to make evaluation stable, we download just the amount of eval set we need,
+        # and load the validation set locally
         if "validation" not in raw_datasets.keys():
             raw_datasets["validation"] = load_dataset(
                 data_args.dataset_name,
