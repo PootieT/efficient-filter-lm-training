@@ -62,10 +62,11 @@ for MODEL_PATH in $ROOT/*/pytorch_model.bin; do
         EPOCHS=3
       fi
 
-      echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs, run-name ${$BASE_NAME-$TASK_NAME} ============="
+      RUN_NAME=$BASE_NAME-$TASK_NAME
+      echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs, run-name ${RUN_NAME} ============="
 #      python evaluation/run_glue.py \
 #        --model_name_or_path $MODEL_PATH \
-#        --run_name $BASE_NAME-$TASK_NAME \
+#        --run_name $RUN_NAME \
 #        --task_name $TASK_NAME \
 #        --do_train \
 #        --do_eval \
