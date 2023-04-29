@@ -27,7 +27,7 @@
 #$ -l gpu_c=6.0
 
 # Submit an array job with 5 tasks
-#$ -t 1
+#$ -t 1-3
 
 # Keep track of information related to the current job
 echo "=========================================================="
@@ -65,7 +65,7 @@ for MODEL_PATH in $ROOT/*/pytorch_model.bin; do
       RUN_NAME=$BASE_NAME-$TASK_NAME
       echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs, run-name ${RUN_NAME} ============="
       python evaluation/run_glue.py \
-        --model_name_or_path $MODEL_PATH \
+        --model_name_or_path $PARENT_DIR \
         --run_name $RUN_NAME \
         --task_name $TASK_NAME \
         --do_train \
