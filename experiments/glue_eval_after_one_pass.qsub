@@ -24,7 +24,7 @@
 
 # request 0 GPU
 #$ -l gpus=1
-#####$ -l gpu_c=6.0
+#$ -l gpu_c=6.0
 
 # Submit an array job with 5 tasks
 #$ -t 1
@@ -62,7 +62,7 @@ for f in $ROOT/*/pytorch_model.bin; do
       fi
 
       echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs ============="
-      python run_glue.py \
+      python evaluation/run_glue.py \
         --model_name_or_path roberta-base \
         --task_name $TASK_NAME \
         --do_train \

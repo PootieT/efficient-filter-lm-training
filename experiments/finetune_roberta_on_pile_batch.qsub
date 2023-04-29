@@ -12,22 +12,22 @@
 ######$ -m ea
 
 # Give job a name
-#$ -N 'finetune_pile_batch'
+#$ -N 'FT-batch'
 
 # Combine output and error files into a single file
 #$ -j y
 #$ -o log
 
 # request 6 cores, each with 6 GB RAM at least
-#$ -pe omp 4
+#$ -pe omp 8
 #$ -l mem_per_core=6G
 
 # request 0 GPU
 #$ -l gpus=1
-#$ -l gpu_c=6.0
+#$ -l gpu_c=6.5
 
 # Submit an array job with 5 tasks
-#$ -t 3
+#$ -t 3-18
 
 # Keep track of information related to the current job
 echo "=========================================================="
@@ -35,7 +35,7 @@ echo "Start date : $(date)"
 echo "Job name : $JOB_NAME"
 echo "Job ID : $JOB_ID  $SGE_TASK_ID"
 echo "=========================================================="
-####nvidia-smi
+nvidia-smi
 
 module load anaconda3/5.2.0
 source activate /projectnb/llamagrp/peter/CS543-final-project/envs
@@ -89,6 +89,7 @@ python evaluation/run_mlm.py \
     --model_name_or_path roberta-base \
     --dataset_name the_pile \
     --train_file $TRAIN_FILE \
+    --validation_file $ROOT/data/the_pile_valid_1000.json \
     --streaming true \
     --max_seq_length 512 \
     --max_eval_samples 1000 \
@@ -108,3 +109,5 @@ python evaluation/run_mlm.py \
     --overwrite_output_dir true \
     --save_total_limit 2 \
     --fp16 true
+
+echo "DONE TRAINING!"
