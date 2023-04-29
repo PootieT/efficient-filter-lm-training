@@ -48,11 +48,12 @@ index=$(($SGE_TASK_ID-1))
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project/dump"
 COUNTER=0
-for f in $ROOT/*/pytorch_model.bin; do
-  echo "counter=" $COUNTER "file=" $f
+for MODEL_PATH in $ROOT/*/pytorch_model.bin; do
+  echo "counter=" $COUNTER "file=" $MODEL_PATH
   if [ $COUNTER == $index ]; then
-    PARENT_F="$(dirname "$f")"
-    echo "+++++++++++++ counter=" $COUNTER "file=" $f "parent_dir=" $PARENT_F "+++++++++++++"
+    PARENT_DIR="$(dirname "$MODEL_PATH")"
+    BASE_NAME="$(basename "$PARENT_DIR")"
+    echo "+++++++++++++ counter=" $COUNTER "file=" $MODEL_PATH "parent_dir=" $PARENT_DIR "+++++++++++++"
     for TASK_NAME in cola sst2 mrpc stsb qqp mnli qnli rte wnli
     do
       if [[ $TASK_NAME == "mrpc" ]] || [[ $TASK_NAME == "wnli" ]]; then
@@ -61,17 +62,18 @@ for f in $ROOT/*/pytorch_model.bin; do
         EPOCHS=3
       fi
 
-      echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs ============="
-      python evaluation/run_glue.py \
-        --model_name_or_path roberta-base \
-        --task_name $TASK_NAME \
-        --do_train \
-        --do_eval \
-        --max_seq_length 128 \
-        --per_device_train_batch_size 32 \
-        --learning_rate 2e-5 \
-        --num_train_epochs $EPOCHS \
-        --output_dir $PARENT_F/$TASK_NAME/
+      echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs, run-name ${$BASE_NAME-$TASK_NAME} ============="
+#      python evaluation/run_glue.py \
+#        --model_name_or_path $MODEL_PATH \
+#        --run_name $BASE_NAME-$TASK_NAME \
+#        --task_name $TASK_NAME \
+#        --do_train \
+#        --do_eval \
+#        --max_seq_length 128 \
+#        --per_device_train_batch_size 32 \
+#        --learning_rate 2e-5 \
+#        --num_train_epochs $EPOCHS \
+#        --output_dir $PARENT_DIR/$TASK_NAME/
     done
   fi
   let COUNTER++
