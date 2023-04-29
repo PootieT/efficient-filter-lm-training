@@ -74,7 +74,8 @@ for MODEL_PATH in $ROOT/*/pytorch_model.bin; do
         --per_device_train_batch_size 32 \
         --learning_rate 2e-5 \
         --num_train_epochs $EPOCHS \
-        --output_dir $PARENT_DIR/$TASK_NAME/
+        --output_dir $PARENT_DIR/$TASK_NAME/ \
+        --overwrite_output_dir
     done
   fi
   let COUNTER++
