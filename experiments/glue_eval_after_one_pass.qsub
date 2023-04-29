@@ -64,17 +64,17 @@ for MODEL_PATH in $ROOT/*/pytorch_model.bin; do
 
       RUN_NAME=$BASE_NAME-$TASK_NAME
       echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs, run-name ${RUN_NAME} ============="
-#      python evaluation/run_glue.py \
-#        --model_name_or_path $MODEL_PATH \
-#        --run_name $RUN_NAME \
-#        --task_name $TASK_NAME \
-#        --do_train \
-#        --do_eval \
-#        --max_seq_length 128 \
-#        --per_device_train_batch_size 32 \
-#        --learning_rate 2e-5 \
-#        --num_train_epochs $EPOCHS \
-#        --output_dir $PARENT_DIR/$TASK_NAME/
+      python evaluation/run_glue.py \
+        --model_name_or_path $MODEL_PATH \
+        --run_name $RUN_NAME \
+        --task_name $TASK_NAME \
+        --do_train \
+        --do_eval \
+        --max_seq_length 128 \
+        --per_device_train_batch_size 32 \
+        --learning_rate 2e-5 \
+        --num_train_epochs $EPOCHS \
+        --output_dir $PARENT_DIR/$TASK_NAME/
     done
   fi
   let COUNTER++
