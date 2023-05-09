@@ -19,7 +19,7 @@
 #$ -o log
 
 # request 6 cores, each with 6 GB RAM at least
-#$ -pe omp 4
+#$ -pe omp 8
 #$ -l mem_per_core=6G
 
 # request 0 GPU
@@ -53,6 +53,8 @@ index=$(($SGE_TASK_ID-1))
 SEEDS=(42 43 44)
 SEED=${SEEDS[$index]}
 RUN_NAME=baseline_$SEED
+
+#--validation_file $ROOT/data/the_pile_valid_1000.json \
 
 python evaluation/run_mlm.py \
     --model_name_or_path roberta-base \

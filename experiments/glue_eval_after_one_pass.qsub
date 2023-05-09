@@ -24,10 +24,10 @@
 
 # request 0 GPU
 #$ -l gpus=1
-#####$ -l gpu_c=6.0
+#$ -l gpu_c=6.0
 
 # Submit an array job with 5 tasks
-#$ -t 1
+#$ -t 1-3
 
 # Keep track of information related to the current job
 echo "=========================================================="
@@ -48,11 +48,12 @@ index=$(($SGE_TASK_ID-1))
 
 ROOT="/projectnb2/llamagrp/peter/CS543-final-project/dump"
 COUNTER=0
-for f in $ROOT/*/pytorch_model.bin; do
-  echo "counter=" $COUNTER "file=" $f
+for MODEL_PATH in $ROOT/*/pytorch_model.bin; do
+  echo "counter=" $COUNTER "file=" $MODEL_PATH
   if [ $COUNTER == $index ]; then
-    PARENT_F="$(dirname "$f")"
-    echo "+++++++++++++ counter=" $COUNTER "file=" $f "parent_dir=" $PARENT_F "+++++++++++++"
+    PARENT_DIR="$(dirname "$MODEL_PATH")"
+    BASE_NAME="$(basename "$PARENT_DIR")"
+    echo "+++++++++++++ counter=" $COUNTER "file=" $MODEL_PATH "parent_dir=" $PARENT_DIR "+++++++++++++"
     for TASK_NAME in cola sst2 mrpc stsb qqp mnli qnli rte wnli
     do
       if [[ $TASK_NAME == "mrpc" ]] || [[ $TASK_NAME == "wnli" ]]; then
@@ -61,9 +62,11 @@ for f in $ROOT/*/pytorch_model.bin; do
         EPOCHS=3
       fi
 
-      echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs ============="
-      python run_glue.py \
-        --model_name_or_path roberta-base \
+      RUN_NAME=$BASE_NAME-$TASK_NAME
+      echo "============= running glue task: ${TASK_NAME} w/ ${EPOCHS} epochs, run-name ${RUN_NAME} ============="
+      python evaluation/run_glue.py \
+        --model_name_or_path $PARENT_DIR \
+        --run_name $RUN_NAME \
         --task_name $TASK_NAME \
         --do_train \
         --do_eval \
@@ -71,7 +74,8 @@ for f in $ROOT/*/pytorch_model.bin; do
         --per_device_train_batch_size 32 \
         --learning_rate 2e-5 \
         --num_train_epochs $EPOCHS \
-        --output_dir $PARENT_F/$TASK_NAME/
+        --output_dir $PARENT_DIR/$TASK_NAME/ \
+        --overwrite_output_dir
     done
   fi
   let COUNTER++
