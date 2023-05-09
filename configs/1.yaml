@@ -1,0 +1,6 @@
+distance: wasserstein
+filter: distance
+filter_size: 100000
+n_counters: 10000
+cold_start: 1000
+select_threshold: 1
