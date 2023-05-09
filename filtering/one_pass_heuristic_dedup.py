@@ -24,6 +24,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Parser for conducing one pass dataset filter")
 
     parser.add_argument("--seed", "-s", help="seed", default=42, type=int)
+    parser.add_argument("--kmeans", action="store_true", help="True uses kmeans, False defaults to kcenter", default=False, type=bool)
     parser.add_argument("--bucket-size", help="CMS hash bucket size", type=int, default=10000)
     parser.add_argument("--cache-size", help="cache size", default=1000, type=int)
     parser.add_argument(
@@ -112,31 +113,14 @@ def one_pass_filter(
     debug: False,
     log_step: int = 1000,
 ):
+    """ online k-center algorithm to filter dataset with one pass """
     out_path = Path(out_path)
     os.makedirs(out_path, exist_ok=True)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     out_f = open(out_path.joinpath("filtered_data.json"), "w")
     idx = 0
-    cache_features = []
-    # populate initial set of cache
-    bar = tqdm(total=cache_size, desc="Populating Cache")
-    while idx < cache_size:
-        line = next(stream)
-        if isinstance(line, dict):
-            line = line["text"]
-
-        if not debug:
-            out_f.write(json.dumps({"text": line}) + "\n")
-        feat = featurizer(line)
-        cache_features.append(feat[0])
-        idx += 1
-        bar.update()
-
-    cache_features = np.vstack(cache_features)
-    norm_cache_features = torch.tensor((
-        cache_features / (np.tile(np.linalg.norm(cache_features, ord=2, axis=1), (cache_features.shape[1], 1)).T + 1e-10)
-    )).to(device)
+    idx, norm_cache_features = populate_cache(cache_size, debug, device, featurizer, idx, out_f, stream)
     discard_cnt, replace_cnt = 0, 0
     stats = []
     bar = tqdm(total=stop_idx, desc=f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")#, position=0)
@@ -176,6 +160,84 @@ def one_pass_filter(
     out_f.close()
 
 
+def populate_cache(cache_size, debug, device, featurizer, idx, out_f, stream):
+    cache_features = []
+    # populate initial set of cache
+    bar = tqdm(total=cache_size, desc="Populating Cache")
+    while idx < cache_size:
+        line = next(stream)
+        if isinstance(line, dict):
+            line = line["text"]
+
+        if not debug:
+            out_f.write(json.dumps({"text": line}) + "\n")
+        feat = featurizer(line)
+        cache_features.append(feat[0])
+        idx += 1
+        bar.update()
+    cache_features = np.vstack(cache_features)
+    norm_cache_features = torch.tensor((
+            cache_features / (
+                np.tile(np.linalg.norm(cache_features, ord=2, axis=1), (cache_features.shape[1], 1)).T + 1e-10)
+    )).to(device)
+    return idx, norm_cache_features
+
+
+def one_pass_filter_kmeans(
+    stream,
+    featurizer: Callable,
+    out_path: Union[str, Path],
+    cache_size: int,
+    t_low: float,
+    stop_idx: int,
+    debug: False,
+    log_step: int = 1000,
+):
+    """ online k-means algorithm to filter dataset with one pass """
+    out_path = Path(out_path)
+    os.makedirs(out_path, exist_ok=True)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+    out_f = open(out_path.joinpath("filtered_data.json"), "w")
+    idx = 0
+    idx, norm_cache_features = populate_cache(cache_size, debug, device, featurizer, idx, out_f, stream)
+    cache_counts = torch.ones(cache_size, device=device)
+    discard_cnt, replace_cnt = 0, 0
+    stats = []
+    bar = tqdm(total=stop_idx, desc=f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")#, position=0)
+    while idx < stop_idx:
+        line = next(stream)
+        if line is None:
+            break
+        if isinstance(line, dict):
+            line = line["text"]
+
+        feat = torch.tensor(featurizer(line.strip()), device=device)
+        norm_feat = feat / torch.sqrt(torch.sum(feat ** 2))
+        distances = 1 - torch.sum(norm_feat * norm_cache_features, dim=1)
+        min_val, min_idx = distances.min(), torch.argmin(distances)
+
+        # if distance to closest cluster is large enough, keep the sample
+        if min_val > t_low and not debug:
+            out_f.write(json.dumps({"text": line}) + "\n")
+        else:
+            print(f"Sample discarded: {line[:200]}")
+
+        # update cluster/cache center
+        cache_counts[min_idx] += 1
+        norm_cache_features += (1/cache_counts[min_idx]) * (norm_feat - norm_cache_features[min_idx])
+
+        if idx % log_step == 0:
+            stats = log_stats(stats, norm_cache_features, discard_cnt=discard_cnt, replace_cnt=replace_cnt, idx=idx)
+        idx += 1
+        bar.update()
+        bar.set_description(f"Processing Stream (discard={discard_cnt}, replace={replace_cnt}, "
+                            f"min-d={min_val:.3f})")
+
+    pd.DataFrame(stats).to_csv(out_path.joinpath("stats.csv"))
+    out_f.close()
+
+
 def main(args):
     cms = CMS(args.bucket_size, 1, seed=args.seed)
     featurizer = partial(ngram_hash_featurizer, cms)
@@ -188,19 +250,31 @@ def main(args):
 
     data = load_dataset("the_pile", split="train", streaming=True).shuffle(seed=args.seed)
     with torch.no_grad():
-        one_pass_filter(
-            iter(data),
-            featurizer,
-            out_path=out_path,
-            stop_idx=args.stop_idx,  # 4800000 is all data
-            cache_size=args.cache_size,
-            t_low=args.t_low,
-            p_low=args.p_low,
-            t_high=args.t_high,
-            p_high=args.p_high,
-            debug=args.debug,
-            log_step=args.log_step,
-        )
+        if args.kmeans:
+            one_pass_filter_kmeans(
+                iter(data),
+                featurizer,
+                out_path=out_path,
+                stop_idx=args.stop_idx,  # 4800000 is all data
+                cache_size=args.cache_size,
+                t_low=args.t_low,
+                debug=args.debug,
+                log_step=args.log_step,
+            )
+        else:
+            one_pass_filter(
+                iter(data),
+                featurizer,
+                out_path=out_path,
+                stop_idx=args.stop_idx,  # 4800000 is all data
+                cache_size=args.cache_size,
+                t_low=args.t_low,
+                p_low=args.p_low,
+                t_high=args.t_high,
+                p_high=args.p_high,
+                debug=args.debug,
+                log_step=args.log_step,
+            )
 
 
 if __name__ == "__main__":
