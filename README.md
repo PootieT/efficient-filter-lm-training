@@ -1,12 +1,21 @@
 # CS543-final-project
 some dataset selection algorithm. 
 
+For details please see our report `Filtering_for_LMs.pdf`
 
 # Data Selection
+
+Checkout `filtering` directory.
 
 # Evaluation
 
 ## Quick Evaluation (KL-Reduction)
+
+```bash
+python evaluation/run_quick_eval.py \
+    --sampled_data_path /path/to/data \
+    --seed 42 \
+```
 
 ## Final Evaluation (Finetune -> GLUE)
 For the final evaluation, we evaluate whether our dataset selection
