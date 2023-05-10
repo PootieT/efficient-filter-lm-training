@@ -207,26 +207,28 @@ def one_pass_filter_kmeans(
     bar = tqdm(total=stop_idx, desc=f"Processing Stream (discard={discard_cnt}, replace={replace_cnt})")#, position=0)
     while idx < stop_idx:
         line = next(stream)
-        if line is None:
+        if line is None or not line:
             break
         if isinstance(line, dict):
             line = line["text"]
 
         feat = torch.tensor(featurizer(line.strip()), device=device)
-        norm_feat = feat / torch.sqrt(torch.sum(feat ** 2))
+        norm_feat = feat / (torch.sqrt(torch.sum(feat ** 2)) + 10e-20)
         distances = 1 - torch.sum(norm_feat * norm_cache_features, dim=1)
         min_val, min_idx = distances.min(), torch.argmin(distances)
 
         # if distance to closest cluster is large enough, keep the sample
-        if min_val > t_low and not debug:
-            out_f.write(json.dumps({"text": line}) + "\n")
-        else:
-            print(f"Sample discarded: {line[:200]}")
+        if min_val > t_low:
+            if not debug:
+                out_f.write(json.dumps({"text": line}) + "\n")
+        # else:
+        #     print(f"Sample discarded: {line[:200]}")
 
         # update cluster/cache center
         cache_counts[min_idx] += 1
-        norm_cache_features += (1/cache_counts[min_idx]) * (norm_feat - norm_cache_features[min_idx])
-
+        norm_cache_features += torch.clamp((1/cache_counts[min_idx]) * (norm_feat - norm_cache_features[min_idx]), min=-1, max=1)  # clamp to prevent outliers corrupting clusters with nans
+        # if torch.isnan(norm_cache_features).sum() > 0:
+        #     x=1
         if idx % log_step == 0:
             stats = log_stats(stats, norm_cache_features, discard_cnt=discard_cnt, replace_cnt=replace_cnt, idx=idx)
         idx += 1
@@ -280,27 +282,37 @@ def main(args):
 
 
 if __name__ == "__main__":
-    # seed = 42
-    # cms = CMS(100, 1, seed=seed)
-    # featurizer = partial(ngram_hash_featurizer, cms)
-    #
-    # for cache_size in [100, 1000, 10000]:
-    #     for t_low in [0.01, 0.03, 0.1, 0.3]:
-    #         for t_high in [0.99, 0.97, 0.9, 0.7]:
-    #             print(f"========= cache_size={cache_size}, t_low={t_low}, t_high={t_high} ========")
-    #             data = load_dataset("the_pile", split="train", streaming=True).shuffle(seed=seed)
-    #             one_pass_filter(
-    #                 iter(data),
-    #                 featurizer,
-    #                 out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
-    #                 stop_idx=48000,  # 4800000 is all data
-    #                 cache_size=cache_size,
-    #                 t_low=t_low,
-    #                 p_low=1.0,
-    #                 t_high=t_high,
-    #                 p_high=1.0,
-    #                 debug=False,
-    #                 log_step=100,
-    #             )
-    args = parse_args()
-    main(args)
+    seed = 42
+    cms = CMS(100, 1, seed=seed)
+    featurizer = partial(ngram_hash_featurizer, cms)
+
+    for cache_size in [100, 1000, 10000]:
+        for t_low in [0.01, 0.03, 0.1, 0.3]:
+            for t_high in [0.99, 0.97, 0.9, 0.7]:
+                print(f"========= cache_size={cache_size}, t_low={t_low}, t_high={t_high} ========")
+                data = load_dataset("EleutherAI/pile", split="train", streaming=True).shuffle(seed=seed)
+                # one_pass_filter(
+                #     iter(data),
+                #     featurizer,
+                #     out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
+                #     stop_idx=48000,  # 4800000 is all data
+                #     cache_size=cache_size,
+                #     t_low=t_low,
+                #     p_low=1.0,
+                #     t_high=t_high,
+                #     p_high=1.0,
+                #     debug=False,
+                #     log_step=100,
+                # )
+                one_pass_filter_kmeans(
+                    iter(data),
+                    featurizer,
+                    out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
+                    stop_idx=50000,  # 4800000 is all data
+                    cache_size=cache_size,
+                    t_low=t_low,
+                    debug=True,
+                    log_step=100,
+                )
+    # args = parse_args()
+    # main(args)
