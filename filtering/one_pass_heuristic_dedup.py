@@ -282,37 +282,37 @@ def main(args):
 
 
 if __name__ == "__main__":
-    seed = 42
-    cms = CMS(100, 1, seed=seed)
-    featurizer = partial(ngram_hash_featurizer, cms)
-
-    for cache_size in [100, 1000, 10000]:
-        for t_low in [0.01, 0.03, 0.1, 0.3]:
-            for t_high in [0.99, 0.97, 0.9, 0.7]:
-                print(f"========= cache_size={cache_size}, t_low={t_low}, t_high={t_high} ========")
-                data = load_dataset("EleutherAI/pile", split="train", streaming=True).shuffle(seed=seed)
-                # one_pass_filter(
-                #     iter(data),
-                #     featurizer,
-                #     out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
-                #     stop_idx=48000,  # 4800000 is all data
-                #     cache_size=cache_size,
-                #     t_low=t_low,
-                #     p_low=1.0,
-                #     t_high=t_high,
-                #     p_high=1.0,
-                #     debug=False,
-                #     log_step=100,
-                # )
-                one_pass_filter_kmeans(
-                    iter(data),
-                    featurizer,
-                    out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
-                    stop_idx=50000,  # 4800000 is all data
-                    cache_size=cache_size,
-                    t_low=t_low,
-                    debug=True,
-                    log_step=100,
-                )
-    # args = parse_args()
-    # main(args)
+    # seed = 42
+    # cms = CMS(100, 1, seed=seed)
+    # featurizer = partial(ngram_hash_featurizer, cms)
+    #
+    # for cache_size in [100, 1000, 10000]:
+    #     for t_low in [0.01, 0.03, 0.1, 0.3]:
+    #         for t_high in [0.99, 0.97, 0.9, 0.7]:
+    #             print(f"========= cache_size={cache_size}, t_low={t_low}, t_high={t_high} ========")
+    #             data = load_dataset("EleutherAI/pile", split="train", streaming=True).shuffle(seed=seed)
+    #             # one_pass_filter(
+    #             #     iter(data),
+    #             #     featurizer,
+    #             #     out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
+    #             #     stop_idx=48000,  # 4800000 is all data
+    #             #     cache_size=cache_size,
+    #             #     t_low=t_low,
+    #             #     p_low=1.0,
+    #             #     t_high=t_high,
+    #             #     p_high=1.0,
+    #             #     debug=False,
+    #             #     log_step=100,
+    #             # )
+    #             one_pass_filter_kmeans(
+    #                 iter(data),
+    #                 featurizer,
+    #                 out_path=f"../data/CMS100_CS{cache_size}_TL{t_low}_TH{t_high}",
+    #                 stop_idx=50000,  # 4800000 is all data
+    #                 cache_size=cache_size,
+    #                 t_low=t_low,
+    #                 debug=True,
+    #                 log_step=100,
+    #             )
+    args = parse_args()
+    main(args)
