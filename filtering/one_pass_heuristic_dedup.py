@@ -24,7 +24,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Parser for conducing one pass dataset filter")
 
     parser.add_argument("--seed", "-s", help="seed", default=42, type=int)
-    parser.add_argument("--kmeans", action="store_true", help="True uses kmeans, False defaults to kcenter", default=False, type=bool)
+    parser.add_argument("--kmeans", action="store_true", help="True uses kmeans, False defaults to kcenter")
     parser.add_argument("--bucket-size", help="CMS hash bucket size", type=int, default=10000)
     parser.add_argument("--cache-size", help="cache size", default=1000, type=int)
     parser.add_argument(
