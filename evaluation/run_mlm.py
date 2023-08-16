@@ -33,7 +33,7 @@ from typing import Optional
 
 import datasets
 import evaluate
-from datasets import load_dataset
+from datasets import load_dataset, IterableDataset
 
 import transformers
 from transformers import (
@@ -285,6 +285,9 @@ def main(model_args, data_args, training_args):
             use_auth_token=True if model_args.use_auth_token else None,
             streaming=data_args.streaming,
         ).with_format("torch")
+        # parallelizing experiments do not do well with streaming from the same file,
+        # to make evaluation stable, we download just the amount of eval set we need,
+        # and load the validation set locally
         if "validation" not in raw_datasets.keys():
             raw_datasets["validation"] = load_dataset(
                 data_args.dataset_name,
@@ -302,39 +305,31 @@ def main(model_args, data_args, training_args):
                 use_auth_token=True if model_args.use_auth_token else None,
                 streaming=data_args.streaming,
             ).with_format("torch")
-    else:
-        data_files = {}
-        if data_args.train_file is not None:
-            data_files["train"] = data_args.train_file
-            extension = data_args.train_file.split(".")[-1]
-        if data_args.validation_file is not None:
-            data_files["validation"] = data_args.validation_file
-            extension = data_args.validation_file.split(".")[-1]
-        if extension == "txt":
-            extension = "text"
-        raw_datasets = load_dataset(
+
+    # instead of choosing between loading a dataset or local data file,
+    # make dataset default, then load train_file or validation_file if provided
+    data_files, extension = {}, "text"
+    if data_args.train_file is not None:
+        data_files["train"] = data_args.train_file
+        extension = data_args.train_file.split(".")[-1]
+    if data_args.validation_file is not None:
+        data_files["validation"] = data_args.validation_file
+        extension = data_args.validation_file.split(".")[-1]
+    if extension == "txt":
+        extension = "text"
+    if data_files:
+        raw_datasets_local = load_dataset(
             extension,
             data_files=data_files,
             cache_dir=model_args.cache_dir,
             use_auth_token=True if model_args.use_auth_token else None,
         )
+        if data_args.dataset_name is not None:
+            for split in data_files.keys():
+                raw_datasets[split] = raw_datasets_local[split]
+        else:
+            raw_datasets = raw_datasets_local
 
-        # If no validation data is there, validation_split_percentage will be used to divide the dataset.
-        if "validation" not in raw_datasets.keys():
-            raw_datasets["validation"] = load_dataset(
-                extension,
-                data_files=data_files,
-                split=f"train[:{data_args.validation_split_percentage}%]",
-                cache_dir=model_args.cache_dir,
-                use_auth_token=True if model_args.use_auth_token else None,
-            )
-            raw_datasets["train"] = load_dataset(
-                extension,
-                data_files=data_files,
-                split=f"train[{data_args.validation_split_percentage}%:]",
-                cache_dir=model_args.cache_dir,
-                use_auth_token=True if model_args.use_auth_token else None,
-            )
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
@@ -524,7 +519,7 @@ def main(model_args, data_args, training_args):
             raise ValueError("--do_train requires a train dataset")
         train_dataset = tokenized_datasets["train"]
         if data_args.max_train_samples is not None:
-            if data_args.streaming is True:
+            if data_args.streaming is True and isinstance(train_dataset, IterableDataset):
                 # eval_dataset.shuffle(seed=training_args.seed, buffer_size=10_000)
                 eval_dataset = train_dataset.take(data_args.max_eval_samples)
             else:
@@ -536,7 +531,7 @@ def main(model_args, data_args, training_args):
             raise ValueError("--do_eval requires a validation dataset")
         eval_dataset = tokenized_datasets["validation"]
         if data_args.max_eval_samples is not None:
-            if data_args.streaming is True:
+            if data_args.streaming is True and isinstance(eval_dataset, IterableDataset):
                 # eval_dataset.shuffle(seed=training_args.seed, buffer_size=10_000)
                 eval_dataset = eval_dataset.take(data_args.max_eval_samples)
             else:
