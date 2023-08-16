@@ -1,11 +1,16 @@
-# CS543-final-project
-some dataset selection algorithm. 
+# CS543-final-project: Efficient Filtering Methods for Finetuning Language Model
 
-For details please see our report `Filtering_for_LMs.pdf`
+Training language model with more data often results in better performance. In our investigation, we are interested to see whether we can filter training/finetuning data by keeping the most diverse data points while keeping performance. We create two family of filtering algorithms, one derived from classic greedy K-means/K-center filtering, while the other uses Part-of-Speech (POS) tree diversity. We finetune Roberta given full or filtered data and evaluate with MLM loss as well as GLUE benchmark. With less data we are able to achieve statistically significant higher macro-accuracy on GLUE. While the experiment scale is limited, we believe this once again echos the importance of data quality, even for language models training on natural language text.
+
+See our report in `Efficient Filtering Methods for Finetuning Language Model.pdf`
+
+Our presentation can be found [here](https://docs.google.com/presentation/d/1KztIDuXeW-CtUfUEydJOMqTrqb4n5rNA0PgAttNveLE/edit?usp=sharing) 
 
 # Data Selection
 
-Checkout `filtering` directory.
+K-Mean/K-Center filtering is in `filtering/one_pass_heuristic_dedup`.
+
+POS Compound based filtering is in `filtering/compound_dedup`.
 
 # Evaluation
 
