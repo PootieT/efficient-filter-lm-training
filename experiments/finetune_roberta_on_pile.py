@@ -9,7 +9,7 @@ model_args = ModelArguments(
 data_args = DataTrainingArguments(
     dataset_name="the_pile",
     # remove train_file argument for baseline training
-    train_file="../data/CMS100_CS100_TL0.1_TH0.7/filtered_data.json",
+    # train_file="../data/CMS100_CS100_TL0.1_TH0.7/filtered_data.json",
     validation_file="../data/the_pile_valid_1000.json",
     streaming=True,
     max_seq_length=512,
@@ -31,7 +31,8 @@ train_args = TrainingArguments(
     max_steps=10000000,
     logging_steps=25,
     seed=42,
-    overwrite_output_dir=True,
+    # overwrite_output_dir=True,
+    # resume_from_checkpoint=True,
     fp16=True,
 )
 
